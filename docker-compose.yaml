@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=smartmeets
+      - MYSQL_ROOT_PASSWORD=mysqlpw
+    networks:
+      - back
+    ports:
+      - 5432:3306
+    volumes:
+      - database-data:/var/lib/mysql 
+
+  smartmeets:
+    image: smartmeets
+    build: .
+    restart: on-failure
+    ports:
+      - "80:80"
+    networks:
+      - back
+    environment:
+      ASPNETCORE_ENVIRONMENT: 'Development'
+      ConnectionStrings__Default: 'server=mysql;port=3306;user=root;password=mysqlpw;database=smartmeets'
+      
+    depends_on:
+      - mysql
+
+networks:
+    back: 
+      driver: bridge
+
+volumes:
+  database-data:
